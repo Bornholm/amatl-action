@@ -1,23 +1,50 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: Amatl Markdown to PDF/HTML Converter
+description: Convert markdown files to PDF or HTML using the amatl tool
+author: GitHub Actions Community
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: file-text
+  color: blue
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
+  pattern:
+    description:
+      'Glob pattern to match markdown files (e.g., "**/*.md", "docs/*.md")'
     required: true
-    default: '1000'
+    default: '**/*.md'
+  output-dir:
+    description: 'Output directory for generated files'
+    required: true
+    default: 'output'
+  format:
+    description: 'Output format: html, pdf'
+    required: false
+    default: 'pdf'
+  layout:
+    description:
+      'Layout to use (amatl://document.html, amatl://presentation.html,
+      amatl://website.html, or custom URL)'
+    required: false
+    default: 'amatl://document.html'
+  vars:
+    description: 'URL to JSON file containing template variables'
+    required: false
+  amatl-version:
+    description: 'Version of amatl to use'
+    required: false
+    default: 'latest'
+  config:
+    description: 'URL to amatl configuration file'
+    required: false
 
 # Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  files-processed:
+    description: 'Number of markdown files processed'
+  output-files:
+    description: 'List of generated output files'
 
 runs:
   using: node24
