@@ -56,10 +56,11 @@ jobs:
 | --------------- | ------------------------------------------------------------------- | -------- | ----------------------- |
 | `pattern`       | Glob pattern to match markdown files (e.g., `**/*.md`, `docs/*.md`) | ✅       | `**/*.md`               |
 | `output-dir`    | Output directory for generated files                                | ✅       | `output`                |
-| `format`        | Output format: `html`, `pdf`, `markdown`, or `both`                 | ❌       | `html`                  |
+| `format`        | Output format: `html`, `pdf`, `markdown`                            | ❌       | `html`                  |
 | `layout`        | Layout to use (see [Layouts](#layouts) section)                     | ❌       | `amatl://document.html` |
-| `vars`          | Path to JSON file containing template variables                     | ❌       | -                       |
+| `vars`          | URL to JSON file containing template variables                      | ❌       | -                       |
 | `amatl-version` | Version of amatl to use                                             | ❌       | `latest`                |
+| `config`        | An amatl config file URL                                            | ❌       | -                       |
 
 ## Outputs
 
