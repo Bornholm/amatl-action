@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Convert Markdown to PDF
-        uses: actions/amatl-action@v1
+        uses: bornholm/amatl-action@v0
         with:
           pattern: 'docs/**/*.md'
           output-dir: 'generated-docs'
@@ -92,7 +92,7 @@ You can also provide a URL to your own custom HTML layout:
 
 ```yaml
 - name: Convert with Custom Layout
-  uses: actions/amatl-action@v1
+  uses: bornholm/amatl-action@v0
   with:
     pattern: '*.md'
     output-dir: 'output'
@@ -106,7 +106,7 @@ You can also provide a URL to your own custom HTML layout:
 
 ```yaml
 - name: Generate HTML Documentation
-  uses: actions/amatl-action@v1
+  uses: bornholm/amatl-action@v0
   with:
     pattern: 'docs/**/*.md'
     output-dir: 'html-docs'
@@ -117,7 +117,7 @@ You can also provide a URL to your own custom HTML layout:
 
 ```yaml
 - name: Generate HTML and PDF
-  uses: actions/amatl-action@v1
+  uses: bornholm/amatl-action@v0
   with:
     pattern: 'README.md'
     output-dir: 'output'
@@ -142,7 +142,7 @@ Then use it in your workflow:
 
 ```yaml
 - name: Generate Documentation with Variables
-  uses: actions/amatl-action@v1
+  uses: bornholm/amatl-action@v0
   with:
     pattern: 'docs/*.md'
     output-dir: 'output'
@@ -167,7 +167,7 @@ Version: {{ .Vars.version }} Author: {{ .Vars.author }} Date: {{ .Vars.date }}
 
 ```yaml
 - name: Generate Presentation
-  uses: actions/amatl-action@v1
+  uses: bornholm/amatl-action@v0
   with:
     pattern: 'presentation.md'
     output-dir: 'slides'
@@ -179,7 +179,7 @@ Version: {{ .Vars.version }} Author: {{ .Vars.author }} Date: {{ .Vars.date }}
 
 ```yaml
 - name: Generate with specific version
-  uses: actions/amatl-action@v1
+  uses: bornholm/amatl-action@v0
   with:
     pattern: '**/*.md'
     output-dir: 'output'

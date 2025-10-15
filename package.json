@@ -1,17 +1,17 @@
 {
   "name": "amatl-action",
   "description": "GitHub Action to convert markdown files to PDF/HTML using amatl",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "author": "GitHub Actions Community",
   "type": "module",
   "private": true,
-  "homepage": "https://github.com/actions/amatl-action",
+  "homepage": "https://github.com/bornholm/amatl-action",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/amatl-action.git"
+    "url": "git+https://github.com/bornholm/amatl-action.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/amatl-action/issues"
+    "url": "https://github.com/bornholm/amatl-action/issues"
   },
   "keywords": [
     "actions",
