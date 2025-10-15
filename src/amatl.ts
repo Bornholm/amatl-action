@@ -143,7 +143,7 @@ export async function processMarkdownFiles(
   // Ensure output directory exists
   await io.mkdirP(options.outputDir)
 
-  let batch: Promise<ProcessResult>[] = []
+  const batch: Promise<ProcessResult>[] = []
   let batchSize: number = os.cpus().length - 1
   if (batchSize < 1) batchSize = 1
 
