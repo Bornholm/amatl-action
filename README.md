@@ -93,7 +93,7 @@ You can also provide a URL to your own custom HTML layout:
 
 ```yaml
 - name: Convert with Custom Layout
-  uses: bornholm/amatl-action@v0
+  uses: bornholm/amatl-action@v1
   with:
     pattern: '*.md'
     output-dir: 'output'
@@ -107,7 +107,7 @@ You can also provide a URL to your own custom HTML layout:
 
 ```yaml
 - name: Generate HTML Documentation
-  uses: bornholm/amatl-action@v0
+  uses: bornholm/amatl-action@v1
   with:
     pattern: 'docs/**/*.md'
     output-dir: 'html-docs'
@@ -118,7 +118,7 @@ You can also provide a URL to your own custom HTML layout:
 
 ```yaml
 - name: Generate HTML and PDF
-  uses: bornholm/amatl-action@v0
+  uses: bornholm/amatl-action@v1
   with:
     pattern: 'README.md'
     output-dir: 'output'
@@ -143,7 +143,7 @@ Then use it in your workflow:
 
 ```yaml
 - name: Generate Documentation with Variables
-  uses: bornholm/amatl-action@v0
+  uses: bornholm/amatl-action@v1
   with:
     pattern: 'docs/*.md'
     output-dir: 'output'
@@ -168,7 +168,7 @@ Version: {{ .Vars.version }} Author: {{ .Vars.author }} Date: {{ .Vars.date }}
 
 ```yaml
 - name: Generate Presentation
-  uses: bornholm/amatl-action@v0
+  uses: bornholm/amatl-action@v1
   with:
     pattern: 'presentation.md'
     output-dir: 'slides'
@@ -180,7 +180,7 @@ Version: {{ .Vars.version }} Author: {{ .Vars.author }} Date: {{ .Vars.date }}
 
 ```yaml
 - name: Generate with specific version
-  uses: bornholm/amatl-action@v0
+  uses: bornholm/amatl-action@v1
   with:
     pattern: '**/*.md'
     output-dir: 'output'
