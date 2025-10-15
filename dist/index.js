@@ -37849,7 +37849,7 @@ async function processMarkdownFiles(amatlPath, files, options) {
     let filesProcessed = 0;
     // Ensure output directory exists
     await ioExports.mkdirP(options.outputDir);
-    let batch = [];
+    const batch = [];
     let batchSize = require$$0.cpus().length - 1;
     if (batchSize < 1)
         batchSize = 1;
