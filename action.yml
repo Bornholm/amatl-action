@@ -27,7 +27,6 @@ inputs:
       'Layout to use (amatl://document.html, amatl://presentation.html,
       amatl://website.html, or custom URL)'
     required: false
-    default: 'amatl://document.html'
   vars:
     description: 'URL to JSON file containing template variables'
     required: false
