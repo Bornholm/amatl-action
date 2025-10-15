@@ -1,4 +1,5 @@
-import require$$0 from 'os';
+import * as require$$0 from 'os';
+import require$$0__default from 'os';
 import require$$0$1 from 'crypto';
 import require$$1, { realpathSync as realpathSync$1, readlinkSync, readdirSync, readdir as readdir$1, lstatSync } from 'fs';
 import * as path$1 from 'path';
@@ -123,7 +124,7 @@ function requireCommand () {
 	};
 	Object.defineProperty(command, "__esModule", { value: true });
 	command.issue = command.issueCommand = void 0;
-	const os = __importStar(require$$0);
+	const os = __importStar(require$$0__default);
 	const utils_1 = requireUtils$1();
 	/**
 	 * Commands
@@ -233,7 +234,7 @@ function requireFileCommand () {
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	const crypto = __importStar(require$$0$1);
 	const fs = __importStar(require$$1);
-	const os = __importStar(require$$0);
+	const os = __importStar(require$$0__default);
 	const utils_1 = requireUtils$1();
 	function issueFileCommand(command, message) {
 	    const filePath = process.env[`GITHUB_${command}`];
@@ -25209,7 +25210,7 @@ function requireSummary () {
 		};
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
-		const os_1 = require$$0;
+		const os_1 = require$$0__default;
 		const fs_1 = require$$1;
 		const { access, appendFile, writeFile } = fs_1.promises;
 		exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
@@ -26098,7 +26099,7 @@ function requireToolrunner () {
 	};
 	Object.defineProperty(toolrunner, "__esModule", { value: true });
 	toolrunner.argStringToArray = toolrunner.ToolRunner = void 0;
-	const os = __importStar(require$$0);
+	const os = __importStar(require$$0__default);
 	const events = __importStar(require$$4);
 	const child = __importStar(require$$2$2);
 	const path = __importStar(path__default);
@@ -26841,7 +26842,7 @@ function requirePlatform () {
 		};
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.getDetails = exports.isLinux = exports.isMacOS = exports.isWindows = exports.arch = exports.platform = void 0;
-		const os_1 = __importDefault(require$$0);
+		const os_1 = __importDefault(require$$0__default);
 		const exec = __importStar(requireExec());
 		const getWindowsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
 		    const { stdout: version } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', undefined, {
@@ -26944,7 +26945,7 @@ function requireCore () {
 		const command_1 = requireCommand();
 		const file_command_1 = requireFileCommand();
 		const utils_1 = requireUtils$1();
-		const os = __importStar(require$$0);
+		const os = __importStar(require$$0__default);
 		const path = __importStar(path__default);
 		const oidc_utils_1 = requireOidcUtils();
 		/**
@@ -28965,7 +28966,7 @@ function requireManifest () {
 		const core_1 = requireCore();
 		// needs to be require for core node modules to be mocked
 		/* eslint @typescript-eslint/no-require-imports: 0 */
-		const os = require$$0;
+		const os = require$$0__default;
 		const cp = require$$2$2;
 		const fs = require$$1;
 		function _findMatch(versionSpec, stable, candidates, archFilter) {
@@ -29199,7 +29200,7 @@ function requireToolCache () {
 	const crypto = __importStar(require$$0$1);
 	const fs = __importStar(require$$1);
 	const mm = __importStar(requireManifest());
-	const os = __importStar(require$$0);
+	const os = __importStar(require$$0__default);
 	const path = __importStar(path__default);
 	const httpm = __importStar(requireLib());
 	const semver = __importStar(requireSemver());
@@ -37848,53 +37849,82 @@ async function processMarkdownFiles(amatlPath, files, options) {
     let filesProcessed = 0;
     // Ensure output directory exists
     await ioExports.mkdirP(options.outputDir);
+    let batch = [];
+    let batchSize = require$$0.cpus().length - 1;
+    if (batchSize < 1)
+        batchSize = 1;
     for (const file of files) {
-        coreExports.info(`Processing: ${file}`);
-        const baseName = path$1.basename(file, path$1.extname(file));
-        const relativePath = path$1.relative(process.cwd(), file);
-        const outputSubDir = path$1.join(options.outputDir, path$1.dirname(relativePath));
-        // Ensure subdirectory exists
-        await ioExports.mkdirP(outputSubDir);
-        // Process for each requested format
-        const formats = options.format
-            .toLowerCase()
-            .split(',')
-            .map((f) => f.trim());
-        for (const format of formats) {
-            const outputFile = path$1.join(outputSubDir, `${baseName}.${format === 'markdown' ? 'md' : format}`);
-            const args = ['render'];
-            if (options.config) {
-                args.push('-c', options.config);
-            }
-            args.push(format, '-o', outputFile);
-            // Add layout option for HTML and PDF
-            if ((format === 'html' || format === 'pdf') && options.layout) {
-                args.push('--html-layout', options.layout);
-            }
-            // Add variables file if provided
-            if (options.vars) {
-                args.push('--vars', options.vars);
-            }
-            if (options.additionalArgs) {
-                const additionalArgs = parseArgsStringToArgv(options.additionalArgs);
-                args.push(...additionalArgs);
-            }
-            // Add input file
-            args.push(file);
-            try {
-                await execExports.exec(amatlPath, args);
-                outputFiles.push(outputFile);
-                coreExports.info(`Generated: ${outputFile}`);
-            }
-            catch (error) {
-                coreExports.error(`Failed to process ${file} to ${format}: ${error}`);
-                throw error;
-            }
+        if (batch.length < batchSize) {
+            batch.push(processMarkdownFile(amatlPath, file, options));
+            continue;
         }
-        filesProcessed++;
+        else {
+            const results = await Promise.all(batch);
+            for (const result of results) {
+                outputFiles.push(...result.outputFiles);
+                filesProcessed += result.filesProcessed;
+            }
+            batch.length = 0;
+        }
+    }
+    if (batch.length > 0) {
+        const results = await Promise.all(batch);
+        for (const result of results) {
+            outputFiles.push(...result.outputFiles);
+            filesProcessed += result.filesProcessed;
+        }
     }
     return {
         filesProcessed,
+        outputFiles
+    };
+}
+async function processMarkdownFile(amatlPath, file, options) {
+    const outputFiles = [];
+    coreExports.info(`Processing: ${file}`);
+    const baseName = path$1.basename(file, path$1.extname(file));
+    const relativePath = path$1.relative(process.cwd(), file);
+    const outputSubDir = path$1.join(options.outputDir, path$1.dirname(relativePath));
+    // Ensure subdirectory exists
+    await ioExports.mkdirP(outputSubDir);
+    // Process for each requested format
+    const formats = options.format
+        .toLowerCase()
+        .split(',')
+        .map((f) => f.trim());
+    for (const format of formats) {
+        const outputFile = path$1.join(outputSubDir, `${baseName}.${format === 'markdown' ? 'md' : format}`);
+        const args = ['render'];
+        if (options.config) {
+            args.push('-c', options.config);
+        }
+        args.push(format, '-o', outputFile);
+        // Add layout option for HTML and PDF
+        if ((format === 'html' || format === 'pdf') && options.layout) {
+            args.push('--html-layout', options.layout);
+        }
+        // Add variables file if provided
+        if (options.vars) {
+            args.push('--vars', options.vars);
+        }
+        if (options.additionalArgs) {
+            const additionalArgs = parseArgsStringToArgv(options.additionalArgs);
+            args.push(...additionalArgs);
+        }
+        // Add input file
+        args.push(file);
+        try {
+            await execExports.exec(amatlPath, args);
+            outputFiles.push(outputFile);
+            coreExports.info(`Generated: ${outputFile}`);
+        }
+        catch (error) {
+            coreExports.error(`Failed to process ${file} to ${format}: ${error}`);
+            throw error;
+        }
+    }
+    return {
+        filesProcessed: 1,
         outputFiles
     };
 }

@@ -5,6 +5,7 @@ import * as tc from '@actions/tool-cache'
 import * as path from 'path'
 import { glob } from 'glob'
 import stringArgv from 'string-argv'
+import * as os from 'os'
 
 export interface AmatlOptions {
   pattern: string
@@ -142,71 +143,103 @@ export async function processMarkdownFiles(
   // Ensure output directory exists
   await io.mkdirP(options.outputDir)
 
+  let batch: Promise<ProcessResult>[] = []
+  let batchSize: number = os.cpus().length - 1
+  if (batchSize < 1) batchSize = 1
+
   for (const file of files) {
-    core.info(`Processing: ${file}`)
-
-    const baseName = path.basename(file, path.extname(file))
-    const relativePath = path.relative(process.cwd(), file)
-    const outputSubDir = path.join(
-      options.outputDir,
-      path.dirname(relativePath)
-    )
-
-    // Ensure subdirectory exists
-    await io.mkdirP(outputSubDir)
-
-    // Process for each requested format
-    const formats = options.format
-      .toLowerCase()
-      .split(',')
-      .map((f) => f.trim())
-
-    for (const format of formats) {
-      const outputFile = path.join(
-        outputSubDir,
-        `${baseName}.${format === 'markdown' ? 'md' : format}`
-      )
-      const args = ['render']
-
-      if (options.config) {
-        args.push('-c', options.config)
+    if (batch.length < batchSize) {
+      batch.push(processMarkdownFile(amatlPath, file, options))
+      continue
+    } else {
+      const results = await Promise.all(batch)
+      for (const result of results) {
+        outputFiles.push(...result.outputFiles)
+        filesProcessed += result.filesProcessed
       }
-
-      args.push(format, '-o', outputFile)
-
-      // Add layout option for HTML and PDF
-      if ((format === 'html' || format === 'pdf') && options.layout) {
-        args.push('--html-layout', options.layout)
-      }
-
-      // Add variables file if provided
-      if (options.vars) {
-        args.push('--vars', options.vars)
-      }
-
-      if (options.additionalArgs) {
-        const additionalArgs = stringArgv(options.additionalArgs)
-        args.push(...additionalArgs)
-      }
-
-      // Add input file
-      args.push(file)
-
-      try {
-        await exec.exec(amatlPath, args)
-        outputFiles.push(outputFile)
-        core.info(`Generated: ${outputFile}`)
-      } catch (error) {
-        core.error(`Failed to process ${file} to ${format}: ${error}`)
-        throw error
-      }
+      batch.length = 0
     }
+  }
 
-    filesProcessed++
+  if (batch.length > 0) {
+    const results = await Promise.all(batch)
+    for (const result of results) {
+      outputFiles.push(...result.outputFiles)
+      filesProcessed += result.filesProcessed
+    }
   }
 
   return {
     filesProcessed,
+    outputFiles
+  }
+}
+
+export async function processMarkdownFile(
+  amatlPath: string,
+  file: string,
+  options: AmatlOptions
+): Promise<ProcessResult> {
+  const outputFiles: string[] = []
+
+  core.info(`Processing: ${file}`)
+
+  const baseName = path.basename(file, path.extname(file))
+  const relativePath = path.relative(process.cwd(), file)
+  const outputSubDir = path.join(options.outputDir, path.dirname(relativePath))
+
+  // Ensure subdirectory exists
+  await io.mkdirP(outputSubDir)
+
+  // Process for each requested format
+  const formats = options.format
+    .toLowerCase()
+    .split(',')
+    .map((f) => f.trim())
+
+  for (const format of formats) {
+    const outputFile = path.join(
+      outputSubDir,
+      `${baseName}.${format === 'markdown' ? 'md' : format}`
+    )
+    const args = ['render']
+
+    if (options.config) {
+      args.push('-c', options.config)
+    }
+
+    args.push(format, '-o', outputFile)
+
+    // Add layout option for HTML and PDF
+    if ((format === 'html' || format === 'pdf') && options.layout) {
+      args.push('--html-layout', options.layout)
+    }
+
+    // Add variables file if provided
+    if (options.vars) {
+      args.push('--vars', options.vars)
+    }
+
+    if (options.additionalArgs) {
+      const additionalArgs = stringArgv(options.additionalArgs)
+      args.push(...additionalArgs)
+    }
+
+    // Add input file
+    args.push(file)
+
+    try {
+      await exec.exec(amatlPath, args)
+      outputFiles.push(outputFile)
+      core.info(`Generated: ${outputFile}`)
+    } catch (error) {
+      core.error(`Failed to process ${file} to ${format}: ${error}`)
+      throw error
+    }
+  }
+
+  return {
+    filesProcessed: 1,
     outputFiles
   }
 }

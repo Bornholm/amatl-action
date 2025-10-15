@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Convert Markdown to PDF
-        uses: bornholm/amatl-action@v0
+        uses: bornholm/amatl-action@v1
         with:
           pattern: 'docs/**/*.md'
           output-dir: 'generated-docs'
@@ -52,15 +52,16 @@ jobs:
 
 ## Inputs
 
-| Input           | Description                                                         | Required | Default                 |
-| --------------- | ------------------------------------------------------------------- | -------- | ----------------------- |
-| `pattern`       | Glob pattern to match markdown files (e.g., `**/*.md`, `docs/*.md`) | ✅       | `**/*.md`               |
-| `output-dir`    | Output directory for generated files                                | ✅       | `output`                |
-| `format`        | Output format: `html`, `pdf`, `markdown`                            | ❌       | `html`                  |
-| `layout`        | Layout to use (see [Layouts](#layouts) section)                     | ❌       | `amatl://document.html` |
-| `vars`          | URL to JSON file containing template variables                      | ❌       | -                       |
-| `amatl-version` | Version of amatl to use                                             | ❌       | `latest`                |
-| `config`        | An amatl config file URL                                            | ❌       | -                       |
+| Input             | Description                                                         | Required | Default                 |
+| ----------------- | ------------------------------------------------------------------- | -------- | ----------------------- |
+| `pattern`         | Glob pattern to match markdown files (e.g., `**/*.md`, `docs/*.md`) | ✅       | `**/*.md`               |
+| `output-dir`      | Output directory for generated files                                | ✅       | `output`                |
+| `format`          | Output format: `html`, `pdf`, `markdown`                            | ❌       | `html`                  |
+| `layout`          | Layout to use (see [Layouts](#layouts) section)                     | ❌       | `amatl://document.html` |
+| `vars`            | URL to JSON file containing template variables                      | ❌       | -                       |
+| `amatl-version`   | Version of amatl to use                                             | ❌       | `latest`                |
+| `config`          | An amatl config file URL                                            | ❌       | -                       |
+| `additional-args` | Additional arguments to pass to the `render` command                | ❌       | -                       |
 
 ## Outputs
 
