@@ -4,6 +4,7 @@ import * as io from '@actions/io'
 import * as tc from '@actions/tool-cache'
 import * as path from 'path'
 import { glob } from 'glob'
+import stringArgv from 'string-argv'
 
 export interface AmatlOptions {
   pattern: string
@@ -13,6 +14,7 @@ export interface AmatlOptions {
   vars?: string
   version: string
   config?: string
+  additionalArgs?: string
 }
 
 export interface ProcessResult {
@@ -180,6 +182,11 @@ export async function processMarkdownFiles(
       // Add variables file if provided
       if (options.vars) {
         args.push('--vars', options.vars)
+      }
+
+      if (options.additionalArgs) {
+        const additionalArgs = stringArgv(options.additionalArgs)
+        args.push(...additionalArgs)
       }
 
       // Add input file

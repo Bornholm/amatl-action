@@ -37,6 +37,9 @@ inputs:
   config:
     description: 'URL to amatl configuration file'
     required: false
+  additional-args:
+    description: 'Additional arguments to pass to the "render" command'
+    required: false
 
 # Define your outputs here.
 outputs:

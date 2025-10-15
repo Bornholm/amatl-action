@@ -22,7 +22,8 @@ export async function run(): Promise<void> {
       layout: core.getInput('layout') || undefined,
       vars: core.getInput('vars') || undefined,
       version: core.getInput('amatl-version'),
-      config: core.getInput('config') || undefined
+      config: core.getInput('config') || undefined,
+      additionalArgs: core.getInput('additional-args') || undefined
     }
 
     core.info('Starting amatl markdown processing...')
@@ -32,6 +33,7 @@ export async function run(): Promise<void> {
     core.info(`Layout: ${options.layout || 'default'}`)
     core.info(`Variables: ${options.vars || 'none'}`)
     core.info(`Config: ${options.config || 'default'}`)
+    core.info(`Additional Args: ${options.additionalArgs || 'none'}`)
     core.info(`Amatl version: ${options.version}`)
 
     // Validate inputs

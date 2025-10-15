@@ -37720,6 +37720,41 @@ const glob = Object.assign(glob_, {
 });
 glob.glob = glob;
 
+function parseArgsStringToArgv(value, env, file) {
+    // ([^\s'"]([^\s'"]*(['"])([^\3]*?)\3)+[^\s'"]*) Matches nested quotes until the first space outside of quotes
+    // [^\s'"]+ or Match if not a space ' or "
+    // (['"])([^\5]*?)\5 or Match "quoted text" without quotes
+    // `\3` and `\5` are a backreference to the quote style (' or ") captured
+    var myRegexp = /([^\s'"]([^\s'"]*(['"])([^\3]*?)\3)+[^\s'"]*)|[^\s'"]+|(['"])([^\5]*?)\5/gi;
+    var myString = value;
+    var myArray = [];
+    var match;
+    do {
+        // Each call to exec returns the next regex match as an array
+        match = myRegexp.exec(myString);
+        if (match !== null) {
+            // Index 1 in the array is the captured group if it exists
+            // Index 0 is the matched text, which we use if no captured group exists
+            myArray.push(firstString(match[1], match[6], match[0]));
+        }
+    } while (match !== null);
+    return myArray;
+}
+// Accepts any number of arguments, and returns the first one that is a string
+// (even an empty string)
+function firstString() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    for (var i = 0; i < args.length; i++) {
+        var arg = args[i];
+        if (typeof arg === "string") {
+            return arg;
+        }
+    }
+}
+
 /**
  * Install amatl tool
  */
@@ -37840,6 +37875,10 @@ async function processMarkdownFiles(amatlPath, files, options) {
             if (options.vars) {
                 args.push('--vars', options.vars);
             }
+            if (options.additionalArgs) {
+                const additionalArgs = parseArgsStringToArgv(options.additionalArgs);
+                args.push(...additionalArgs);
+            }
             // Add input file
             args.push(file);
             try {
@@ -37896,7 +37935,8 @@ async function run() {
             layout: coreExports.getInput('layout') || undefined,
             vars: coreExports.getInput('vars') || undefined,
             version: coreExports.getInput('amatl-version'),
-            config: coreExports.getInput('config') || undefined
+            config: coreExports.getInput('config') || undefined,
+            additionalArgs: coreExports.getInput('additional-args') || undefined
         };
         coreExports.info('Starting amatl markdown processing...');
         coreExports.info(`Pattern: ${options.pattern}`);
@@ -37905,6 +37945,7 @@ async function run() {
         coreExports.info(`Layout: ${options.layout || 'default'}`);
         coreExports.info(`Variables: ${options.vars || 'none'}`);
         coreExports.info(`Config: ${options.config || 'default'}`);
+        coreExports.info(`Additional Args: ${options.additionalArgs || 'none'}`);
         coreExports.info(`Amatl version: ${options.version}`);
         // Validate inputs
         validateInputs(options);
