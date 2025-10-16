@@ -29,6 +29,7 @@ export async function run(): Promise<void> {
 
     core.info('Starting amatl markdown processing...')
     core.info(`Patterns: ${options.patterns.split('\n').join(', ')}`)
+    core.info(`Ignore: ${(options.ignore || 'none').split('\n').join(', ')}`)
     core.info(`Output directory: ${options.outputDir}`)
     core.info(`Format: ${options.format}`)
     core.info(`Layout: ${options.layout || 'default'}`)

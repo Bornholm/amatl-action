@@ -37986,6 +37986,7 @@ async function run() {
         };
         coreExports.info('Starting amatl markdown processing...');
         coreExports.info(`Patterns: ${options.patterns.split('\n').join(', ')}`);
+        coreExports.info(`Ignore: ${(options.ignore || 'none').split('\n').join(', ')}`);
         coreExports.info(`Output directory: ${options.outputDir}`);
         coreExports.info(`Format: ${options.format}`);
         coreExports.info(`Layout: ${options.layout || 'default'}`);
