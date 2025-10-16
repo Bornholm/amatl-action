@@ -37832,12 +37832,27 @@ async function getLatestAmatlVersion() {
 /**
  * Find markdown files matching the pattern
  */
-async function findMarkdownFiles(pattern) {
-    coreExports.info(`Searching for markdown files with pattern: ${pattern}`);
-    const files = await glob(pattern, {
-        ignore: ['node_modules/**', '.git/**'],
-        nodir: true
-    });
+async function findMarkdownFiles(patterns, ignore) {
+    const files = [];
+    const workspace = process.env.GITHUB_WORKSPACE;
+    const ignoredFiles = new Set(ignore.split('\n'));
+    for (const pattern of patterns.split('\n')) {
+        coreExports.info(`Searching for markdown files with pattern: ${pattern}`);
+        let matches = await glob(pattern, {
+            ignore: ['node_modules/**', '.git/**'],
+            nodir: true
+        });
+        matches = matches.filter((m) => {
+            const relPath = path$1.relative(workspace, m);
+            const ignored = ignoredFiles.has(relPath);
+            if (ignored) {
+                coreExports.info(`Ignoring markdown file '${relPath}'`);
+                return false;
+            }
+            return true;
+        });
+        files.push(...matches);
+    }
     coreExports.info(`Found ${files.length} markdown files`);
     return files;
 }
@@ -37932,8 +37947,8 @@ async function processMarkdownFile(amatlPath, file, options) {
  * Validate inputs
  */
 function validateInputs(options) {
-    if (!options.pattern) {
-        throw new Error('Pattern is required');
+    if (!options.patterns) {
+        throw new Error('Patterns is required');
     }
     if (!options.outputDir) {
         throw new Error('Output directory is required');
@@ -37959,7 +37974,8 @@ async function run() {
     try {
         // Get inputs
         const options = {
-            pattern: coreExports.getInput('pattern'),
+            patterns: coreExports.getInput('patterns'),
+            ignore: coreExports.getInput('ignore'),
             outputDir: coreExports.getInput('output-dir'),
             format: coreExports.getInput('format'),
             layout: coreExports.getInput('layout') || undefined,
@@ -37969,7 +37985,7 @@ async function run() {
             additionalArgs: coreExports.getInput('additional-args') || undefined
         };
         coreExports.info('Starting amatl markdown processing...');
-        coreExports.info(`Pattern: ${options.pattern}`);
+        coreExports.info(`Patterns: ${options.patterns.split('\n').join(', ')}`);
         coreExports.info(`Output directory: ${options.outputDir}`);
         coreExports.info(`Format: ${options.format}`);
         coreExports.info(`Layout: ${options.layout || 'default'}`);
@@ -37982,9 +37998,9 @@ async function run() {
         // Install amatl
         const amatLPath = await installAmatl(options.version);
         // Find markdown files
-        const markdownFiles = await findMarkdownFiles(options.pattern);
+        const markdownFiles = await findMarkdownFiles(options.patterns, options.ignore);
         if (markdownFiles.length === 0) {
-            coreExports.warning('No markdown files found matching the pattern');
+            coreExports.warning('No markdown files found matching the patterns');
             coreExports.setOutput('files-processed', '0');
             coreExports.setOutput('output-files', '[]');
             return;

@@ -9,15 +9,19 @@ branding:
 
 # Define your inputs here.
 inputs:
-  pattern:
+  patterns:
     description:
-      'Glob pattern to match markdown files (e.g., "**/*.md", "docs/*.md")'
+      'Line separated list of glob patterns to match markdown files (e.g.,
+      "**/*.md", "docs/*.md")'
     required: true
     default: '**/*.md'
   output-dir:
     description: 'Output directory for generated files'
     required: true
     default: 'output'
+  ignore:
+    description: 'Line separated list of ignored files'
+    required: false
   format:
     description: 'Output format: html, pdf'
     required: false

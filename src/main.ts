@@ -16,7 +16,8 @@ export async function run(): Promise<void> {
   try {
     // Get inputs
     const options: AmatlOptions = {
-      pattern: core.getInput('pattern'),
+      patterns: core.getInput('patterns'),
+      ignore: core.getInput('ignore'),
       outputDir: core.getInput('output-dir'),
       format: core.getInput('format'),
       layout: core.getInput('layout') || undefined,
@@ -27,7 +28,7 @@ export async function run(): Promise<void> {
     }
 
     core.info('Starting amatl markdown processing...')
-    core.info(`Pattern: ${options.pattern}`)
+    core.info(`Patterns: ${options.patterns.split('\n').join(', ')}`)
     core.info(`Output directory: ${options.outputDir}`)
     core.info(`Format: ${options.format}`)
     core.info(`Layout: ${options.layout || 'default'}`)
@@ -43,10 +44,13 @@ export async function run(): Promise<void> {
     const amatLPath = await installAmatl(options.version)
 
     // Find markdown files
-    const markdownFiles = await findMarkdownFiles(options.pattern)
+    const markdownFiles = await findMarkdownFiles(
+      options.patterns,
+      options.ignore
+    )
 
     if (markdownFiles.length === 0) {
-      core.warning('No markdown files found matching the pattern')
+      core.warning('No markdown files found matching the patterns')
       core.setOutput('files-processed', '0')
       core.setOutput('output-files', '[]')
       return

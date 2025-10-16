@@ -8,7 +8,8 @@ import stringArgv from 'string-argv'
 import * as os from 'os'
 
 export interface AmatlOptions {
-  pattern: string
+  patterns: string
+  ignore: string
   outputDir: string
   format: string
   layout?: string
@@ -117,13 +118,35 @@ async function getLatestAmatlVersion(): Promise<string> {
 /**
  * Find markdown files matching the pattern
  */
-export async function findMarkdownFiles(pattern: string): Promise<string[]> {
-  core.info(`Searching for markdown files with pattern: ${pattern}`)
+export async function findMarkdownFiles(
+  patterns: string,
+  ignore: string
+): Promise<string[]> {
+  const files: string[] = []
 
-  const files = await glob(pattern, {
-    ignore: ['node_modules/**', '.git/**'],
-    nodir: true
-  })
+  const workspace = process.env.GITHUB_WORKSPACE as string
+  const ignoredFiles = new Set(ignore.split('\n'))
+
+  for (const pattern of patterns.split('\n')) {
+    core.info(`Searching for markdown files with pattern: ${pattern}`)
+    let matches = await glob(pattern, {
+      ignore: ['node_modules/**', '.git/**'],
+      nodir: true
+    })
+
+    matches = matches.filter((m) => {
+      const relPath = path.relative(workspace, m)
+      const ignored = ignoredFiles.has(relPath)
+      if (ignored) {
+        core.info(`Ignoring markdown file '${relPath}'`)
+        return false
+      }
+
+      return true
+    })
+
+    files.push(...matches)
+  }
 
   core.info(`Found ${files.length} markdown files`)
   return files
@@ -248,8 +271,8 @@ export async function processMarkdownFile(
  * Validate inputs
  */
 export function validateInputs(options: AmatlOptions): void {
-  if (!options.pattern) {
-    throw new Error('Pattern is required')
+  if (!options.patterns) {
+    throw new Error('Patterns is required')
   }
 
   if (!options.outputDir) {

@@ -52,16 +52,18 @@ jobs:
 
 ## Inputs
 
-| Input             | Description                                                         | Required | Default                 |
-| ----------------- | ------------------------------------------------------------------- | -------- | ----------------------- |
-| `pattern`         | Glob pattern to match markdown files (e.g., `**/*.md`, `docs/*.md`) | ✅       | `**/*.md`               |
-| `output-dir`      | Output directory for generated files                                | ✅       | `output`                |
-| `format`          | Output format: `html`, `pdf`, `markdown`                            | ❌       | `html`                  |
-| `layout`          | Layout to use (see [Layouts](#layouts) section)                     | ❌       | `amatl://document.html` |
-| `vars`            | URL to JSON file containing template variables                      | ❌       | -                       |
-| `amatl-version`   | Version of amatl to use                                             | ❌       | `latest`                |
-| `config`          | An amatl config file URL                                            | ❌       | -                       |
-| `additional-args` | Additional arguments to pass to the `render` command                | ❌       | -                       |
+| Input                     | Description                                                         | Required  | Default                 |
+| ------------------------- | ------------------------------------------------------------------- | --------- | ----------------------- |
+| `patterns`                | Line separated list of glob patterns to match markdown files (e.g., |
+| "\*_/_.md", "docs/\*.md") | ✅                                                                  | `**/*.md` |
+| `output-dir`              | Output directory for generated files                                | ✅        | `output`                |
+| `ignore`                  | Line separated list of ignored markdown files                       | ❌        | -                       |
+| `format`                  | Output format: `html`, `pdf`, `markdown`                            | ❌        | `html`                  |
+| `layout`                  | Layout to use (see [Layouts](#layouts) section)                     | ❌        | `amatl://document.html` |
+| `vars`                    | URL to JSON file containing template variables                      | ❌        | -                       |
+| `amatl-version`           | Version of amatl to use                                             | ❌        | `latest`                |
+| `config`                  | An amatl config file URL                                            | ❌        | -                       |
+| `additional-args`         | Additional arguments to pass to the `render` command                | ❌        | -                       |
 
 ## Outputs
 
@@ -95,7 +97,7 @@ You can also provide a URL to your own custom HTML layout:
 - name: Convert with Custom Layout
   uses: bornholm/amatl-action@v1
   with:
-    pattern: '*.md'
+    patterns: '*.md'
     output-dir: 'output'
     format: 'html'
     layout: 'https://raw.githubusercontent.com/user/repo/main/custom-layout.html'
@@ -109,7 +111,7 @@ You can also provide a URL to your own custom HTML layout:
 - name: Generate HTML Documentation
   uses: bornholm/amatl-action@v1
   with:
-    pattern: 'docs/**/*.md'
+    patterns: 'docs/**/*.md'
     output-dir: 'html-docs'
     format: 'html'
 ```
@@ -120,7 +122,7 @@ You can also provide a URL to your own custom HTML layout:
 - name: Generate HTML and PDF
   uses: bornholm/amatl-action@v1
   with:
-    pattern: 'README.md'
+    patterns: 'README.md'
     output-dir: 'output'
     format: 'html,pdf'
     layout: 'amatl://document.html'
@@ -145,7 +147,7 @@ Then use it in your workflow:
 - name: Generate Documentation with Variables
   uses: bornholm/amatl-action@v1
   with:
-    pattern: 'docs/*.md'
+    patterns: 'docs/*.md'
     output-dir: 'output'
     format: 'pdf'
     vars: 'file://variables.json'
@@ -170,7 +172,7 @@ Version: {{ .Vars.version }} Author: {{ .Vars.author }} Date: {{ .Vars.date }}
 - name: Generate Presentation
   uses: bornholm/amatl-action@v1
   with:
-    pattern: 'presentation.md'
+    patterns: 'presentation.md'
     output-dir: 'slides'
     format: 'pdf'
     layout: 'amatl://presentation.html'
@@ -182,7 +184,7 @@ Version: {{ .Vars.version }} Author: {{ .Vars.author }} Date: {{ .Vars.date }}
 - name: Generate with specific version
   uses: bornholm/amatl-action@v1
   with:
-    pattern: '**/*.md'
+    patterns: '**/*.md'
     output-dir: 'output'
     format: 'html'
     amatl-version: 'v0.25.1'
